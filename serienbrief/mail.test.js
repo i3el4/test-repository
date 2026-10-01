@@ -104,11 +104,15 @@ const decoded = Buffer.from(payload, "base64").toString("utf8");
 assert(decoded.includes("Liebes Team"), "eml body did not decode to the letter");
 assert(decoded.includes(frank.videos[0].url), "eml body lost the link");
 
-assert(Mail.POWERSHELL.includes("param("), "powershell script missing");
-assert(Mail.POWERSHELL.includes("ValidateSet('senden','entwurf')"), "powershell mode switch missing");
-assert(Mail.VBS.includes("-Modus"), "launcher does not pass the mode");
-assert(!Mail.POWERSHELL.includes("`r"), "powershell script contains a broken escape");
-assert(Mail.VBS.includes("vbYesNoCancel"), "windows launcher missing the question dialog");
+assert(Mail.MAC_COMMAND.startsWith("#!/bin/bash\n"), "mac launcher must use unix line breaks");
+assert(!Mail.MAC_COMMAND.includes("\r"), "mac launcher contains carriage returns");
+assert(Mail.MAC_COMMAND.includes("Microsoft Outlook"), "mac launcher does not talk to Outlook");
+assert(Mail.MAC_COMMAND.includes("has html:true"), "mac launcher does not send HTML");
+assert(Mail.MAC_COMMAND.includes("Nur Entwürfe"), "mac launcher is missing the draft choice");
+assert(Mail.MAC_COMMAND.includes("Jetzt senden"), "mac launcher is missing the send choice");
+const { spawnSync } = require("child_process");
+const syntax = spawnSync("bash", ["-n"], { input: Mail.MAC_COMMAND, encoding: "utf8" });
+assert(syntax.status === 0, `mac launcher has a shell error: ${syntax.stderr}`);
 
 const bettina = all.find((person) => person.email === "bettina.schneider@fhnw.ch");
 const bettinaMail = Mail.buildMessage({

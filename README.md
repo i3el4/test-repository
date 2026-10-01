@@ -15,7 +15,7 @@ Die Seite merkt sich Texte, Auslassungen und den Versandstatus in diesem Browser
 Die Runde **Test** schreibt nur die fünf Projektadressen an, mit dem vereinbarten Text und einem Beispielvideo. Dieselben Inhalte gehen an alle fünf, nicht die persönlichen Listen.
 
 - **Diese Vorschau speichern** legt eine E-Mail-Datei (`.eml`) in den Download-Ordner.
-- Doppelklick öffnet sie in Outlook zum Senden.
+- Auf dem Mac: Rechtsklick auf die Datei, **Öffnen mit**, **Microsoft Outlook**, dann **Senden**. Ein normaler Doppelklick öffnet sie manchmal in der App Mail.
 - **Alle als ZIP speichern** packt alle Adressen der gewählten Runde.
 
 ## Echte Runden
@@ -26,16 +26,17 @@ Die Texte sind Entwürfe und lassen sich vor dem Versand ändern. Die Handlungsa
 
 In der Liste sind auch Studierende enthalten, weil ihre Adressen in den Spalten der Excel-Datei stehen. Über die Schalter lässt sich der Versand auf Mitarbeitende begrenzen.
 
-## Viele Mails auf Windows
+## Viele Mails auf dem Mac mit Outlook
 
-**Outlook für Windows** speichert ein Paket. Nach dem Entpacken `Starten.vbs` doppelklicken:
+**Outlook auf dem Mac** speichert ein Paket. Nach dem Entpacken `Mails senden.command` doppelklicken.
 
-- **Ja** sendet sofort über das geöffnete Outlook.
-- **Nein** legt nur Entwürfe an.
-- Bereits protokollierte Adressen werden beim nächsten Start übersprungen.
-- Danach kann `protokoll.csv` in der Seite geladen werden.
-
-Outlook sollte mit dem Postfach `frank.sippach@fhnw.ch` angemeldet sein. Die automatische Signatur vorher kurz ausschalten, sonst steht sie zusätzlich unter der Grussformel.
+- Outlook muss geöffnet und mit `frank.sippach@fhnw.ch` angemeldet sein.
+- Falls der Schalter **Neues Outlook** aktiv ist, auf **Legacy Outlook** umschalten. Nur das klassische Outlook nimmt die Mails aus diesem Paket entgegen.
+- Die automatische Signatur vorher kurz ausschalten, sonst steht sie zusätzlich unter der Grussformel.
+- Beim ersten Start fragt macOS, ob das Terminal Outlook steuern darf. **OK** wählen.
+- Wenn macOS die Datei blockiert: Rechtsklick, **Öffnen**, und im Dialog noch einmal **Öffnen**.
+- **Nur Entwürfe** legt die Mails im Ordner Entwürfe ab. **Jetzt senden** verschickt sofort. Für den ersten Test Entwürfe wählen.
+- Adressen, die in `protokoll.csv` schon stehen, werden beim nächsten Start übersprungen. Die Datei kann in der Seite über **Protokoll laden** geöffnet werden.
 
 ## Neuere Excel-Liste
 

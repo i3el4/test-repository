@@ -381,7 +381,7 @@
     const blob = new Blob([emlFor(target)], { type: "message/rfc822" });
     const filename = `${fileBase()}-${Mail.slugEmail(target.email)}.eml`;
     downloadBlob(blob, filename);
-    setStatus(`Gespeichert: ${filename}. Im Download-Ordner doppelklicken, in Outlook auf Senden klicken.`);
+    setStatus(`Gespeichert: ${filename}. Rechtsklick auf die Datei, «Öffnen mit», Microsoft Outlook, dann Senden.`);
   }
 
   function askConfirm(title, body, action) {
@@ -409,14 +409,14 @@
       }
       folder.file("Bitte-lesen.txt", Mail.utf8Bom([
         "Jede Datei ist eine E-Mail.",
-        "Doppelklick öffnet sie in Outlook oder Apple Mail zum Senden.",
-        "Für viele Mails auf Windows ist die andere Datei «Outlook für Windows» bequemer.",
+        "Auf dem Mac: Rechtsklick, Öffnen mit, Microsoft Outlook, dann auf Senden klicken.",
+        "Ein normaler Doppelklick öffnet die Datei manchmal in der App Mail.",
+        "Für viele Mails in der Browser-Seite den Knopf «Outlook auf dem Mac» verwenden.",
         "",
       ].join("\r\n")));
     } else {
       const root = zip.folder(folderName);
-      root.file("Starten.vbs", Mail.VBS);
-      root.file("senden.ps1", `\uFEFF${Mail.POWERSHELL}`);
+      root.file("Mails senden.command", Mail.MAC_COMMAND, { unixPermissions: 0o755 });
       root.file("Bitte-lesen.txt", Mail.utf8Bom(Mail.outlookReadme({
         waveLabel: Mail.WAVE_META[state.wave].label,
         count: list.length,
@@ -426,11 +426,10 @@
       for (let index = 0; index < list.length; index += 1) {
         const recipient = list[index];
         const message = messageFor(recipient.entries || recipient.videos || []);
-        mails.file(`${String(index + 1).padStart(4, "0")}.json`, JSON.stringify({
-          to: recipient.email,
-          subject: message.subject,
-          html: message.html,
-        }));
+        const stem = String(index + 1).padStart(4, "0");
+        const subject = message.subject.replace(/[\r\n]+/g, " ").trim();
+        mails.file(`${stem}.meta`, `${recipient.email}\n${subject}\n`);
+        mails.file(`${stem}.html`, message.html);
         if (index % 20 === 0) {
           updateProgress(index, list.length, "Outlook-Paket wird gepackt …");
           await pause();
@@ -438,8 +437,8 @@
       }
     }
     updateProgress(list.length, list.length, "Datei wird gespeichert …");
-    const blob = await zip.generateAsync({ type: "blob" });
-    const suffix = kind === "eml" ? "E-Mails.zip" : "Outlook.zip";
+    const blob = await zip.generateAsync({ type: "blob", platform: "UNIX" });
+    const suffix = kind === "eml" ? "E-Mails.zip" : "Outlook-Mac.zip";
     downloadBlob(blob, `${folderName}-${suffix}`);
     progressModal.hide();
     setStatus(`Gespeichert: ${folderName}-${suffix}. ZIP öffnen und dem Hinweis in Bitte-lesen.txt folgen.`);
@@ -472,10 +471,8 @@
   function saveOutlook() {
     if (!guard()) return;
     const list = deliveryList();
-    const text = state.wave === "test"
-      ? `Das Paket enthält ${list.length} Testmails. Nach dem Entpacken Starten.vbs doppelklicken.`
-      : `Das Paket enthält ${list.length} persönliche E-Mails. Nach dem Entpacken Starten.vbs doppelklicken. Ja sendet sofort, Nein legt nur Entwürfe an.`;
-    askConfirm("Outlook-Paket speichern?", text, () => buildZip("outlook"));
+    const text = `Das Paket enthält ${list.length} E-Mails für Outlook auf dem Mac. Nach dem Entpacken «Mails senden.command» doppelklicken. «Nur Entwürfe» legt sie zum Prüfen ab, «Jetzt senden» verschickt sie sofort. Beim ersten Mal darf das Terminal Outlook steuern.`;
+    askConfirm("Outlook-Paket für den Mac speichern?", text, () => buildZip("outlook"));
   }
 
   function markSent() {
