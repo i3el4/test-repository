@@ -465,26 +465,40 @@
     });
   }
 
+  async function afterShown(modal, id) {
+    if (modal._isShown && !modal._isTransitioning) return;
+    await new Promise((resolve) => {
+      const element = $(id);
+      const done = () => {
+        element.removeEventListener("shown.bs.modal", done);
+        resolve();
+      };
+      element.addEventListener("shown.bs.modal", done);
+      if (modal._isShown && !modal._isTransitioning) done();
+    });
+  }
+
+  async function hideModal(modal, id) {
+    const element = $(id);
+    if (!element.classList.contains("show") && !modal._isTransitioning && !modal._isShown) return;
+    await afterShown(modal, id);
+    const hidden = whenModal(id, "hidden.bs.modal");
+    modal.hide();
+    await hidden;
+  }
+
   async function showProgress() {
     const shown = whenModal("progress-modal", "shown.bs.modal");
     progressModal.show();
     await shown;
   }
 
-  async function hideProgress() {
-    const element = $("progress-modal");
-    if (!element.classList.contains("show")) await whenModal("progress-modal", "shown.bs.modal");
-    const hidden = whenModal("progress-modal", "hidden.bs.modal");
-    progressModal.hide();
-    await hidden;
+  function hideProgress() {
+    return hideModal(progressModal, "progress-modal");
   }
 
-  async function hideConfirm() {
-    const element = $("confirm-modal");
-    if (!element.classList.contains("show")) return;
-    const hidden = whenModal("confirm-modal", "hidden.bs.modal");
-    confirmModal.hide();
-    await hidden;
+  function hideConfirm() {
+    return hideModal(confirmModal, "confirm-modal");
   }
 
   function saveZip() {
