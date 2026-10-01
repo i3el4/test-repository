@@ -393,7 +393,7 @@
 
   async function buildZip(kind) {
     const list = deliveryList();
-    progressModal.show();
+    await showProgress();
     const zip = new JSZip();
     const folderName = fileBase();
     if (kind === "eml") {
@@ -440,7 +440,7 @@
     const blob = await zip.generateAsync({ type: "blob", platform: "UNIX" });
     const suffix = kind === "eml" ? "E-Mails.zip" : "Outlook-Mac.zip";
     downloadBlob(blob, `${folderName}-${suffix}`);
-    progressModal.hide();
+    await hideProgress();
     setStatus(`Gespeichert: ${folderName}-${suffix}. ZIP öffnen und dem Hinweis in Bitte-lesen.txt folgen.`);
   }
 
@@ -452,6 +452,39 @@
 
   function pause() {
     return new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  function whenModal(id, eventName) {
+    return new Promise((resolve) => {
+      const element = $(id);
+      const done = () => {
+        element.removeEventListener(eventName, done);
+        resolve();
+      };
+      element.addEventListener(eventName, done);
+    });
+  }
+
+  async function showProgress() {
+    const shown = whenModal("progress-modal", "shown.bs.modal");
+    progressModal.show();
+    await shown;
+  }
+
+  async function hideProgress() {
+    const element = $("progress-modal");
+    if (!element.classList.contains("show")) await whenModal("progress-modal", "shown.bs.modal");
+    const hidden = whenModal("progress-modal", "hidden.bs.modal");
+    progressModal.hide();
+    await hidden;
+  }
+
+  async function hideConfirm() {
+    const element = $("confirm-modal");
+    if (!element.classList.contains("show")) return;
+    const hidden = whenModal("confirm-modal", "hidden.bs.modal");
+    confirmModal.hide();
+    await hidden;
   }
 
   function saveZip() {
@@ -654,11 +687,11 @@
     $("save-outlook").addEventListener("click", saveOutlook);
     $("mark-sent").addEventListener("click", markSent);
     $("copy-text").addEventListener("click", copyText);
-    $("confirm-ok").addEventListener("click", () => {
+    $("confirm-ok").addEventListener("click", async () => {
       const action = confirmAction;
       confirmAction = null;
-      confirmModal.hide();
-      if (action) action();
+      await hideConfirm();
+      if (action) await action();
     });
     $("import-excel").addEventListener("click", () => $("excel-file").click());
     $("excel-file").addEventListener("change", () => {
