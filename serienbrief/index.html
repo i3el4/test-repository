@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SWITCHtube Serienbrief</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect rx='8' width='32' height='32' fill='%237c2432'/%3E%3Cpath fill='white' d='M12 9l12 7-12 7z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container-xl d-flex gap-3 align-items-start">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+      </div>
+      <div>
+        <p class="brand-kicker">FHNW Hochschule für Wirtschaft</p>
+        <h1 class="brand-title">SWITCHtube Serienbrief</h1>
+        <p class="mb-0 mt-2 text-secondary">Drei Erinnerungen an dieselbe Liste. Jede Person erhält nur die eigenen Videos, mit Titel, Link und letztem Aufruf. Zuerst der Test an das Projektteam.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-xl pb-4">
+    <section class="steps" aria-label="Ablauf">
+      <div class="step"><b>1 · Runde</b><span>Test, dann Erinnerung 1, 2 und 3</span></div>
+      <div class="step"><b>2 · Text</b><span>Formulierung prüfen und anpassen</span></div>
+      <div class="step"><b>3 · Vorschau</b><span>Ein paar Personen durchklicken</span></div>
+      <div class="step"><b>4 · Versand</b><span>Datei speichern und in Outlook öffnen</span></div>
+    </section>
+
+    <section class="row g-3 mb-4" id="wave-cards" aria-label="E-Mail-Runden"></section>
+
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <section class="panel">
+          <div class="panel-header d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <h2 class="h4 mb-1" id="editor-title">Text der Runde</h2>
+              <p class="text-secondary mb-0 small" id="editor-hint"></p>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="reset-wave">Standardtext</button>
+          </div>
+          <div class="panel-body">
+            <div class="mode-banner mb-3" id="mode-banner"></div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label" for="from-name">Absendername</label>
+                <input class="form-control" id="from-name" autocomplete="name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="from-email">Absenderadresse</label>
+                <input class="form-control" id="from-email" type="email" autocomplete="email">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="field-kicker">Kopfzeile im Brief</label>
+                <input class="form-control" id="field-kicker">
+              </div>
+              <div class="col-md-6" id="deadline-wrap">
+                <label class="form-label" for="field-deadline">Rückmeldefrist, optional</label>
+                <input class="form-control" id="field-deadline" type="date">
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="field-subject">Betreff</label>
+                <input class="form-control" id="field-subject">
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="field-body">Brieftext</label>
+                <textarea class="form-control" id="field-body" spellcheck="true"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="field-action">Handlungsaufforderung</label>
+                <textarea class="form-control" id="field-action" spellcheck="true"></textarea>
+                <div class="form-text">Erscheint hervorgehoben unter der Videoliste. Leer lassen, wenn sie nicht gebraucht wird.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="field-signature">Grussformel</label>
+                <textarea class="form-control" id="field-signature" spellcheck="true"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-lg-7">
+        <section class="mail-chrome preview-sticky">
+          <div class="mail-meta">
+            <div><span class="text-secondary">Von</span> <strong id="preview-from"></strong></div>
+            <div><span class="text-secondary">An</span> <strong id="preview-to"></strong></div>
+            <div><span class="text-secondary">Betreff</span> <strong id="preview-subject"></strong></div>
+          </div>
+          <iframe class="mail-frame" id="preview-frame" title="Vorschau der E-Mail"></iframe>
+        </section>
+      </div>
+    </div>
+
+    <section class="panel mt-4" id="audience">
+      <div class="panel-header">
+        <h2 class="h4 mb-1" id="audience-title">Empfänger</h2>
+        <p class="text-secondary mb-0" id="audience-lead"></p>
+      </div>
+      <div class="panel-body">
+        <div id="test-audience">
+          <label class="form-label" for="test-recipients">Testadressen, eine pro Zeile</label>
+          <textarea class="form-control mb-3" id="test-recipients" spellcheck="false"></textarea>
+          <label class="form-label" for="video-search">Beispielvideo für den Test</label>
+          <input class="form-control" id="video-search" placeholder="Titel, Adresse oder Video-Nummer">
+          <div class="list-group mt-2" id="video-hits"></div>
+          <div class="mt-3" id="video-chips"></div>
+          <p class="form-text mb-0">Der Testtext verspricht einen Link. Die fünf Adressen erhalten denselben Brief, nicht die persönlichen Listen.</p>
+        </div>
+
+        <div id="live-audience" class="d-none">
+          <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="filter-ma">
+              <label class="form-check-label" for="filter-ma">Mitarbeitende <span id="count-ma"></span></label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="filter-st">
+              <label class="form-check-label" for="filter-st">Studierende <span id="count-st"></span></label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="filter-ext">
+              <label class="form-check-label" for="filter-ext">Externe <span id="count-ext"></span></label>
+            </div>
+            <div class="ms-lg-auto d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" type="button" id="import-excel">Neuere Excel-Liste laden</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" id="reset-data">Mitgelieferte Liste</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" id="import-log">Protokoll laden</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" id="export-csv">Empfängerliste speichern</button>
+              <input class="d-none" type="file" id="excel-file" accept=".xlsx,.xls">
+              <input class="d-none" type="file" id="log-file" accept=".csv,text/csv">
+            </div>
+          </div>
+          <input class="form-control mb-3" id="recipient-search" placeholder="Person oder Videotitel suchen">
+          <div class="recipient-table-wrap">
+            <table class="table table-hover recipient-table mb-0">
+              <thead>
+                <tr>
+                  <th>E-Mail</th>
+                  <th>Videos</th>
+                  <th>Gruppe</th>
+                  <th>Erstes Video</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="recipient-rows"></tbody>
+            </table>
+          </div>
+          <p class="form-text mt-2 mb-0" id="source-note"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="actionbar">
+    <div class="container-xl">
+      <div>
+        <div class="fw-semibold" id="action-summary">Keine Runde gewählt</div>
+        <div class="small text-secondary" id="status-line">Die Datei liegt danach im Download-Ordner. Auf dem Mac: Rechtsklick, Öffnen mit, Microsoft Outlook, dann Senden.</div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="copy-text">Nur-Text kopieren</button>
+        <button class="btn btn-sm btn-outline-primary" type="button" id="save-one">Diese Vorschau speichern</button>
+        <button class="btn btn-sm btn-primary" type="button" id="save-zip">Alle als ZIP speichern</button>
+        <button class="btn btn-sm btn-outline-primary" type="button" id="save-outlook">Outlook auf dem Mac</button>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="mark-sent">Als verschickt markieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="confirm-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="confirm-title">Bitte bestätigen</h2>
+          <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+        </div>
+        <div class="modal-body" id="confirm-body"></div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Abbrechen</button>
+          <button class="btn btn-primary" type="button" id="confirm-ok">Weiter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="progress-modal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="mb-2" id="progress-label">E-Mails werden erzeugt …</p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="copy-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5">Nur-Text der Vorschau</h2>
+          <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" id="copy-area" rows="16" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/bootstrap.bundle.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="data.js"></script>
+  <script src="mail.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
